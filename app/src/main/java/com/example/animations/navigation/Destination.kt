@@ -11,6 +11,4 @@ sealed class Destination {
     object Box : Destination()
     @Serializable
     object List : Destination()
-    @Serializable
-    object Shared : Destination()
 }
