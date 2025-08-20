@@ -23,6 +23,9 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.example.animations.model.Message
+import com.example.animations.ui.theme.receiverBubble
+import com.example.animations.ui.theme.receiverName
+import com.example.animations.ui.theme.senderBubble
 
 /**
  * A common UI component for displaying a message bubble.
@@ -59,7 +62,6 @@ private fun CommonMessageUi(
                 .padding(12.dp)
                 .widthIn(max = 250.dp)
         ) {
-            // Display name if provided (e.g., for ReceiverMessage)
             name?.let {
                 Text(
                     text = it,
@@ -85,16 +87,16 @@ private fun CommonMessageUi(
                             onToggleReadMore()
                         }
                     ))
-                    withStyle(style = SpanStyle(color = Color.Blue)) {
+                    withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
                         append("Read more")
                     }
-                    pop() // Pop the link annotation
+                    pop()
                 }
             }
 
             Text(
                 text = displayText,
-                style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black),
+                style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurface),
                 modifier = Modifier.animateContentSize()
             )
 
@@ -102,8 +104,8 @@ private fun CommonMessageUi(
             Text(
                 text = message.date,
                 style = MaterialTheme.typography.labelSmall,
-                color = Color.Gray,
-                modifier = Modifier.align(Alignment.End) // Consistent for both sender and receiver
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.align(Alignment.End)
             )
         }
     }
@@ -124,7 +126,7 @@ fun SenderMessage(
         message = message,
         onToggleReadMore = onToggleReadMore,
         horizontalArrangement = Arrangement.End,
-        bubbleColor = Color(0xFFDCF8C6)
+        bubbleColor = MaterialTheme.colorScheme.senderBubble
     )
 }
 
@@ -143,8 +145,8 @@ fun ReceiverMessage(
         message = message,
         onToggleReadMore = onToggleReadMore,
         horizontalArrangement = Arrangement.Start,
-        bubbleColor = Color.White,
+        bubbleColor = MaterialTheme.colorScheme.receiverBubble,
         name = message.name,
-        nameColor = Color(0xFF075E54)
+        nameColor = MaterialTheme.colorScheme.receiverName
     )
 }

@@ -5,6 +5,7 @@ import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.darkColorScheme
@@ -13,8 +14,28 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+
+@Suppress("UnusedReceiverParameter")
+val ColorScheme.senderBubble: Color
+    @Composable
+    @ReadOnlyComposable
+    get() = if (isSystemInDarkTheme()) SenderBubbleColorDark else SenderBubbleColorLight
+
+@Suppress("UnusedReceiverParameter")
+val ColorScheme.receiverBubble: Color
+    @Composable
+    @ReadOnlyComposable
+    get() = if (isSystemInDarkTheme()) ReceiverBubbleColorDark else ReceiverBubbleColorLight
+
+@Suppress("UnusedReceiverParameter")
+val ColorScheme.receiverName: Color
+    @Composable
+    @ReadOnlyComposable
+    get() = if (isSystemInDarkTheme()) ReceiverNameColorDark else ReceiverNameColorLight
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
@@ -32,7 +53,6 @@ private val LightColorScheme = lightColorScheme(
 @Composable
 fun AnimationsTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
@@ -41,7 +61,6 @@ fun AnimationsTheme(
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
@@ -59,7 +78,6 @@ fun AnimationsTheme(
         },
     )
 }
-
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 val LocalSharedTransitionScope = compositionLocalOf<SharedTransitionScope> {
