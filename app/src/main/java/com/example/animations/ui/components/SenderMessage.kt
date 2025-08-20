@@ -70,14 +70,9 @@ private fun CommonMessageUi(
             }
 
             val shouldShowReadMore = message.truncated && !message.fullContentMode
-            val contentText = if (shouldShowReadMore) {
-                message.content.take(100) + "... "
-            } else {
-                message.content
-            }
 
             val displayText = buildAnnotatedString {
-                append(contentText)
+                append(message.content)
                 if (shouldShowReadMore) {
                     pushLink(
                         LinkAnnotation.Clickable(
