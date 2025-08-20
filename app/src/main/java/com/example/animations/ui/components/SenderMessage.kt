@@ -23,9 +23,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.example.animations.model.Message
-import com.example.animations.ui.theme.receiverBubble
-import com.example.animations.ui.theme.receiverName
-import com.example.animations.ui.theme.senderBubble
+import com.example.animations.ui.theme.customColors
 
 /**
  * A common UI component for displaying a message bubble.
@@ -72,9 +70,14 @@ private fun CommonMessageUi(
             }
 
             val shouldShowReadMore = message.truncated && !message.fullContentMode
+            val contentText = if (shouldShowReadMore) {
+                message.content.take(100) + "... "
+            } else {
+                message.content
+            }
 
             val displayText = buildAnnotatedString {
-                append(message.content)
+                append(contentText)
                 if (shouldShowReadMore) {
                     pushLink(
                         LinkAnnotation.Clickable(
@@ -123,7 +126,7 @@ fun SenderMessage(
         message = message,
         onToggleReadMore = onToggleReadMore,
         horizontalArrangement = Arrangement.End,
-        bubbleColor = MaterialTheme.colorScheme.senderBubble
+        bubbleColor = MaterialTheme.colorScheme.customColors.senderBubble
     )
 }
 
@@ -142,8 +145,8 @@ fun ReceiverMessage(
         message = message,
         onToggleReadMore = onToggleReadMore,
         horizontalArrangement = Arrangement.Start,
-        bubbleColor = MaterialTheme.colorScheme.receiverBubble,
+        bubbleColor = MaterialTheme.colorScheme.customColors.receiverBubble,
         name = message.name,
-        nameColor = MaterialTheme.colorScheme.receiverName
+        nameColor = MaterialTheme.colorScheme.customColors.receiverName
     )
 }

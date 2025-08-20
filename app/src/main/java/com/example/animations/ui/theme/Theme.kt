@@ -14,28 +14,23 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
-@Suppress("UnusedReceiverParameter")
-val ColorScheme.senderBubble: Color
-    @Composable
-    @ReadOnlyComposable
-    get() = if (isSystemInDarkTheme()) SenderBubbleColorDark else SenderBubbleColorLight
+data class CustomColors(
+    val senderBubble: Color,
+    val receiverBubble: Color,
+    val receiverName: Color
+)
 
-@Suppress("UnusedReceiverParameter")
-val ColorScheme.receiverBubble: Color
-    @Composable
-    @ReadOnlyComposable
-    get() = if (isSystemInDarkTheme()) ReceiverBubbleColorDark else ReceiverBubbleColorLight
-
-@Suppress("UnusedReceiverParameter")
-val ColorScheme.receiverName: Color
-    @Composable
-    @ReadOnlyComposable
-    get() = if (isSystemInDarkTheme()) ReceiverNameColorDark else ReceiverNameColorLight
+val LocalCustomColors = compositionLocalOf {
+    CustomColors(
+        senderBubble = SenderBubbleColorLight,
+        receiverBubble = ReceiverBubbleColorLight,
+        receiverName = ReceiverNameColorLight
+    )
+}
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
@@ -65,19 +60,40 @@ fun AnimationsTheme(
         else -> LightColorScheme
     }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        shapes = shapes,
-        content = {
-            SharedTransitionLayout {
-                CompositionLocalProvider(LocalSharedTransitionScope provides this) {
-                    content()
+    val customColors = if (darkTheme) {
+        CustomColors(
+            senderBubble = SenderBubbleColorDark,
+            receiverBubble = ReceiverBubbleColorDark,
+            receiverName = ReceiverNameColorDark
+        )
+    } else {
+        CustomColors(
+            senderBubble = SenderBubbleColorLight,
+            receiverBubble = ReceiverBubbleColorLight,
+            receiverName = ReceiverNameColorLight
+        )
+    }
+
+    CompositionLocalProvider(LocalCustomColors provides customColors) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = Typography,
+            shapes = shapes,
+            content = {
+                SharedTransitionLayout {
+                    CompositionLocalProvider(LocalSharedTransitionScope provides this) {
+                        content()
+                    }
                 }
-            }
-        },
-    )
+            },
+        )
+    }
 }
+
+@Suppress("UnusedReceiverParameter")
+val ColorScheme.customColors: CustomColors
+    @Composable
+    get() = LocalCustomColors.current
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 val LocalSharedTransitionScope = compositionLocalOf<SharedTransitionScope> {
