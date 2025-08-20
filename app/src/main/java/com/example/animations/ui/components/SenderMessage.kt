@@ -11,65 +11,87 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.example.animations.model.Message
+import com.example.animations.ui.theme.customColors
 
+/**
+ * A common UI component for displaying a message bubble.
+ * This Composable handles the layout and display logic for both sender and receiver messages.
+ *
+ * @param message The message data to display.
+ * @param onToggleReadMore Callback invoked when the "Read more" link is clicked.
+ * @param horizontalArrangement The horizontal arrangement for the message row.
+ * @param bubbleColor The background color of the message bubble.
+ * @param name Optional: The name to display above the message content (e.g., for receiver).
+ * @param nameColor Optional: The color for the name text, if a name is provided.
+ */
 @Composable
-fun SenderMessage(
+private fun CommonMessageUi(
     message: Message,
     onToggleReadMore: () -> Unit,
+    horizontalArrangement: Arrangement.Horizontal,
+    bubbleColor: Color,
+    name: String? = null,
+    nameColor: Color = Color.Unspecified
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp),
-        horizontalArrangement = Arrangement.End
+        horizontalArrangement = horizontalArrangement
     ) {
         Column(
             modifier = Modifier
                 .background(
-                    color = Color(0xFFDCF8C6),
+                    color = bubbleColor,
                     shape = RoundedCornerShape(12.dp)
                 )
                 .padding(12.dp)
                 .widthIn(max = 250.dp)
         ) {
-            val displayText = buildAnnotatedString {
-                append(
-                    if (message.truncated && !message.fullContentMode) {
-                        message.content.take(100) + "... "
-                    } else {
-                        message.content
-                    }
+            name?.let {
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = nameColor
                 )
-                if (message.truncated && !message.fullContentMode) {
-                    pushStringAnnotation(tag = "readMore", annotation = "readMore")
-                    withStyle(style = SpanStyle(color = Color.Blue)) {
+                Spacer(modifier = Modifier.height(2.dp))
+            }
+
+            val shouldShowReadMore = message.truncated && !message.fullContentMode
+
+            val displayText = buildAnnotatedString {
+                append(message.content)
+                if (shouldShowReadMore) {
+                    pushLink(
+                        LinkAnnotation.Clickable(
+                            tag = "readMoreLink",
+                            linkInteractionListener = {
+                                onToggleReadMore()
+                            }
+                        )
+                    )
+                    withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
                         append("Read more")
                     }
                     pop()
                 }
             }
 
-            ClickableText(
+            Text(
                 text = displayText,
-                style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black),
-                onClick = { offset ->
-                    displayText.getStringAnnotations(tag = "readMore", start = offset, end = offset)
-                        .firstOrNull()?.let {
-                            onToggleReadMore()
-                        }
-                },
+                style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurface),
                 modifier = Modifier.animateContentSize()
             )
 
@@ -77,76 +99,49 @@ fun SenderMessage(
             Text(
                 text = message.date,
                 style = MaterialTheme.typography.labelSmall,
-                color = Color.Gray,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.align(Alignment.End)
             )
         }
     }
 }
 
+/**
+ * Displays a message bubble for the sender.
+ *
+ * @param message The message data to display.
+ * @param onToggleReadMore Callback invoked when the "Read more" link is clicked.
+ */
+@Composable
+fun SenderMessage(
+    message: Message,
+    onToggleReadMore: () -> Unit,
+) {
+    CommonMessageUi(
+        message = message,
+        onToggleReadMore = onToggleReadMore,
+        horizontalArrangement = Arrangement.End,
+        bubbleColor = MaterialTheme.colorScheme.customColors.senderBubble
+    )
+}
+
+/**
+ * Displays a message bubble for the receiver.
+ *
+ * @param message The message data to display.
+ * @param onToggleReadMore Callback invoked when the "Read more" link is clicked.
+ */
 @Composable
 fun ReceiverMessage(
     message: Message,
     onToggleReadMore: () -> Unit
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        horizontalArrangement = Arrangement.Start
-    ) {
-        Column(
-            modifier = Modifier
-                .background(
-                    color = Color.White,
-                    shape = RoundedCornerShape(12.dp)
-                )
-                .padding(12.dp)
-                .widthIn(max = 250.dp)
-        ) {
-            Text(
-                text = message.name,
-                style = MaterialTheme.typography.labelMedium,
-                color = Color(0xFF075E54)
-            )
-            Spacer(modifier = Modifier.height(2.dp))
-
-            val displayText = buildAnnotatedString {
-                append(
-                    if (message.truncated && !message.fullContentMode) {
-                        message.content.take(100) + "... "
-                    } else {
-                        message.content
-                    }
-                )
-                if (message.truncated && !message.fullContentMode) {
-                    pushStringAnnotation(tag = "readMore", annotation = "readMore")
-                    withStyle(style = SpanStyle(color = Color.Blue)) {
-                        append("Read more")
-                    }
-                    pop()
-                }
-            }
-
-            ClickableText(
-                text = displayText,
-                style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black),
-                onClick = { offset ->
-                    displayText.getStringAnnotations(tag = "readMore", start = offset, end = offset)
-                        .firstOrNull()?.let {
-                            onToggleReadMore()
-                        }
-                },
-                modifier = Modifier.animateContentSize()
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = message.date,
-                style = MaterialTheme.typography.labelSmall,
-                color = Color.Gray,
-                modifier = Modifier.align(Alignment.End)
-            )
-        }
-    }
+    CommonMessageUi(
+        message = message,
+        onToggleReadMore = onToggleReadMore,
+        horizontalArrangement = Arrangement.Start,
+        bubbleColor = MaterialTheme.colorScheme.customColors.receiverBubble,
+        name = message.name,
+        nameColor = MaterialTheme.colorScheme.customColors.receiverName
+    )
 }
