@@ -11,13 +11,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
@@ -53,23 +53,24 @@ fun SenderMessage(
                     }
                 )
                 if (message.truncated && !message.fullContentMode) {
-                    pushStringAnnotation(tag = "readMore", annotation = "readMore")
+                    pushLink(
+                        LinkAnnotation.Clickable(
+                        tag = "readMoreLink",
+                        linkInteractionListener = {
+                            onToggleReadMore()
+                        }
+                    ))
                     withStyle(style = SpanStyle(color = Color.Blue)) {
                         append("Read more")
                     }
-                    pop()
+                    pop() // Pop the link annotation
                 }
             }
 
-            ClickableText(
+
+            Text(
                 text = displayText,
                 style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black),
-                onClick = { offset ->
-                    displayText.getStringAnnotations(tag = "readMore", start = offset, end = offset)
-                        .firstOrNull()?.let {
-                            onToggleReadMore()
-                        }
-                },
                 modifier = Modifier.animateContentSize()
             )
 
@@ -120,7 +121,12 @@ fun ReceiverMessage(
                     }
                 )
                 if (message.truncated && !message.fullContentMode) {
-                    pushStringAnnotation(tag = "readMore", annotation = "readMore")
+                    pushLink(LinkAnnotation.Clickable(
+                        tag = "readMoreLink",
+                        linkInteractionListener = {
+                            onToggleReadMore()
+                        }
+                    ))
                     withStyle(style = SpanStyle(color = Color.Blue)) {
                         append("Read more")
                     }
@@ -128,15 +134,9 @@ fun ReceiverMessage(
                 }
             }
 
-            ClickableText(
+            Text(
                 text = displayText,
                 style = MaterialTheme.typography.bodyMedium.copy(color = Color.Black),
-                onClick = { offset ->
-                    displayText.getStringAnnotations(tag = "readMore", start = offset, end = offset)
-                        .firstOrNull()?.let {
-                            onToggleReadMore()
-                        }
-                },
                 modifier = Modifier.animateContentSize()
             )
 
