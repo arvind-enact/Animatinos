@@ -71,22 +71,24 @@ private fun CommonMessageUi(
                 Spacer(modifier = Modifier.height(2.dp))
             }
 
+            val shouldShowReadMore = message.truncated && !message.fullContentMode
+            val contentText = if (shouldShowReadMore) {
+                message.content.take(100) + "... "
+            } else {
+                message.content
+            }
+
             val displayText = buildAnnotatedString {
-                append(
-                    if (message.truncated && !message.fullContentMode) {
-                        message.content.take(100) + "... "
-                    } else {
-                        message.content
-                    }
-                )
-                if (message.truncated && !message.fullContentMode) {
+                append(contentText)
+                if (shouldShowReadMore) {
                     pushLink(
                         LinkAnnotation.Clickable(
-                        tag = "readMoreLink",
-                        linkInteractionListener = {
-                            onToggleReadMore()
-                        }
-                    ))
+                            tag = "readMoreLink",
+                            linkInteractionListener = {
+                                onToggleReadMore()
+                            }
+                        )
+                    )
                     withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
                         append("Read more")
                     }
