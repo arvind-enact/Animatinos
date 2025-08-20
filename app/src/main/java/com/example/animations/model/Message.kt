@@ -11,7 +11,7 @@ data class Message(
     val content: String
         get() {
             return if (truncated && !fullContentMode) {
-                originalContent.take(50)
+                originalContent.take(50) + "..."
             } else {
                 originalContent
             }
